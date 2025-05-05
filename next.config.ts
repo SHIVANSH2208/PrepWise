@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
- esllint: {
+ eslint: {
   ignoreDuringBuilds: true,
  },
  typescript: {
