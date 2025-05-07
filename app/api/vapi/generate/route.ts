@@ -9,7 +9,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const { type, role, level, techstack, amount, userid } = await request.json();
+    const { type, role, level, techstack, amount, userid, userId } = await request.json();
 
     try {
         const { text: questions } = await generateText({
