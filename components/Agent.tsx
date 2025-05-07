@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from "next/image";
 import {cn} from "@/lib/utils";
@@ -7,10 +7,10 @@ import {useEffect, useState} from "react";
 import {vapi} from '@/lib/vapi.sdk';
 
 enum CallStatus {
-    INACTIVE = "INACTIVE",
-    CONNECTING = "CONNECTING",
-    ACTIVE = "ACTIVE",
-    FINISHED = "FINISHED",
+    INACTIVE = 'INACTIVE',
+    CONNECTING = 'CONNECTING',
+    ACTIVE = 'ACTIVE',
+    FINISHED = 'FINISHED',
 }
 
 interface SavedMessage {
@@ -23,7 +23,6 @@ const Agent = ({userName, userId, type} : AgentProps) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
   const [messages, setMessages] = useState<SavedMessage[]>([]);
-  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
       const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
@@ -40,30 +39,7 @@ const Agent = ({userName, userId, type} : AgentProps) => {
       const onSpeechStart = () => setIsSpeaking(true);
       const onSpeechEnd = () => setIsSpeaking(false);
 
-      const onError = (error: Error) => {
-    console.log('Error', error);
-
-    // Check if the error is related to meeting ejection
-    if (error.message && (
-      error.message.includes('Meeting has ended') ||
-      error.message.includes('ejection') ||
-      error.message.includes('disconnected')
-    )) {
-      console.log('Meeting ended unexpectedly');
-      setConnectionError('The meeting ended unexpectedly. Please try again.');
-
-      // If the call was active, set it to finished
-      if (callStatus === CallStatus.ACTIVE) {
-        setCallStatus(CallStatus.FINISHED);
-      } else if (callStatus === CallStatus.CONNECTING) {
-        // If we were still connecting, go back to inactive state
-        setCallStatus(CallStatus.INACTIVE);
-      }
-    } else {
-      setConnectionError('An error occurred with the connection. Please try again.');
-      setCallStatus(CallStatus.INACTIVE);
-    }
-  };
+      const onError = (error: Error) => console.log('Error', error);
 
       vapi.on('call-start', onCallStart);
       vapi.on('call-end', onCallEnd);
@@ -80,7 +56,7 @@ const Agent = ({userName, userId, type} : AgentProps) => {
       vapi.off('speech-end', onSpeechEnd);
       vapi.off('error', onError);
       }
-  }, [callStatus])
+  }, [])
 
   useEffect(() => {
       if(callStatus === CallStatus.FINISHED) router.push('/');
@@ -88,21 +64,15 @@ const Agent = ({userName, userId, type} : AgentProps) => {
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
-    setConnectionError(null); // Reset any previous connection errors
-
-    try {
+  
       await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
         variableValues: {
           username: userName,
           userId: userId,
+          userid: userId,
         },
       });
-    } catch (error) {
-      console.error("Vapi.start error:", error);
-      setConnectionError('Failed to start the meeting. Please try again.');
-      setCallStatus(CallStatus.INACTIVE);
     }
-  };
 
   const handleDisconnect = async () => {
     setCallStatus(CallStatus.FINISHED);
@@ -125,7 +95,7 @@ const Agent = ({userName, userId, type} : AgentProps) => {
       </div>
 
       <div className="card-border">
-
+        
           <div className="card-content">
             <Image src="/user-avatar.png" alt="user avatar" width={540} height={540} className="rounded-full object-cover size-[120px]" />
             <h3>{userName}</h3>
@@ -141,12 +111,6 @@ const Agent = ({userName, userId, type} : AgentProps) => {
                 </div>
             </div>
         )}
-
-      {connectionError && (
-        <div className="w-full text-center mb-4 text-red-500">
-          {connectionError}
-        </div>
-      )}
 
       <div className="w-full flex justify-center">
         {callStatus !== 'ACTIVE' ? (
