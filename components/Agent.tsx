@@ -112,12 +112,6 @@ const Agent = ({userName, userId, type} : AgentProps) => {
             </div>
         )}
 
-      {connectionError && (
-        <div className="w-full text-center mb-4 text-red-500">
-          {connectionError}
-        </div>
-      )}
-
       <div className="w-full flex justify-center">
         {callStatus !== 'ACTIVE' ? (
             <button className="relative btn-call" onClick={handleCall}>
